@@ -1,0 +1,5 @@
+package com.geoconnect.backend.entity;
+
+public enum ServiceCategory {
+	PLUMBING, ELECTRICAL, CLEANING, CARPENTRY, PAINTING, AC_REPAIR, APPLIANCE_REPAIR, BEAUTY, FITNESS, TUTORING, OTHER
+}
