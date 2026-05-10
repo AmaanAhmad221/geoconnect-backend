@@ -1,6 +1,5 @@
 services:
   - type: web
     name: geoconnect-backend
-    env: java
     buildCommand: chmod +x mvnw && ./mvnw clean package
     startCommand: java -jar target/backend-0.0.1-SNAPSHOT.jar
