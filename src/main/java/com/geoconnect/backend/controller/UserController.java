@@ -7,6 +7,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -14,7 +15,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.geoconnect.backend.dto.ApiResponse;
 import com.geoconnect.backend.dto.UserResponse;
+import com.geoconnect.backend.entity.Role;
 import com.geoconnect.backend.entity.User;
+import com.geoconnect.backend.exception.BadRequestException;
 import com.geoconnect.backend.exception.ResourceNotFoundException;
 import com.geoconnect.backend.repository.UserRepository;
 import com.geoconnect.backend.service.FileUploadService;
@@ -90,4 +93,28 @@ public class UserController {
 
 		return ResponseEntity.ok(ApiResponse.success("Profile photo deleted!", null));
 	}
+
+	@PutMapping("/upgrade-to-provider")
+	@Operation(summary = "Upgrade current user to PROVIDER role")
+	public ResponseEntity<ApiResponse<UserResponse>> upgradeToProvider(
+	        @AuthenticationPrincipal UserDetails userDetails) {
+
+	    User user = userRepository.findByUsername(userDetails.getUsername())
+	            .orElseThrow(() -> new ResourceNotFoundException(
+	                "User", "username", userDetails.getUsername()));
+
+	    if (user.getRole() != Role.CUSTOMER) {
+	        throw new BadRequestException("Only CUSTOMER accounts can upgrade to PROVIDER!");
+	    }
+
+	    user.setRole(Role.PROVIDER);
+	    userRepository.save(user);
+
+	    // Re-issue token with new role — user must re-login
+	    return ResponseEntity.ok(ApiResponse.success(
+	        "You are now a Provider! Please login again to activate your new role.",
+	        UserResponse.fromUser(user)
+	    ));
+	
+}
 }

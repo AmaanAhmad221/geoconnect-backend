@@ -2,6 +2,7 @@ package com.geoconnect.backend.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -33,10 +34,18 @@ public class SecurityConfig {
 		http.cors(cors -> cors.configure(http)).csrf(csrf -> csrf.disable())
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.exceptionHandling(ex -> ex.authenticationEntryPoint(jwtAuthEntryPoint))
-				.authorizeHttpRequests(auth -> auth.requestMatchers("/api/auth/**").permitAll()
-						.requestMatchers("/api/health").permitAll().requestMatchers("/ws/**").permitAll()
-						.requestMatchers("/swagger-ui/**").permitAll().requestMatchers("/api-docs/**").permitAll()
-						.requestMatchers("/v3/api-docs/**").permitAll().requestMatchers("/uploads/**").permitAll()
+				.authorizeHttpRequests(auth -> auth
+
+						// ✅ Auth & public infra
+						.requestMatchers("/api/auth/**").permitAll().requestMatchers("/api/health").permitAll()
+						.requestMatchers("/ws/**").permitAll().requestMatchers("/swagger-ui/**").permitAll()
+						.requestMatchers("/api-docs/**").permitAll().requestMatchers("/v3/api-docs/**").permitAll()
+						.requestMatchers("/uploads/**").permitAll()
+
+						// ✅ Public read-only APIs (no login needed)
+						.requestMatchers(HttpMethod.GET, "/api/services/**").permitAll()
+						.requestMatchers(HttpMethod.GET, "/api/reviews/**").permitAll()
+						.requestMatchers(HttpMethod.POST, "/api/location/nearby-services").permitAll()
 
 						// 🔐 EVERYTHING ELSE NEEDS LOGIN
 						.anyRequest().authenticated())

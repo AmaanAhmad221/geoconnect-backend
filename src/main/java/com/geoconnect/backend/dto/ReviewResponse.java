@@ -27,7 +27,7 @@ public class ReviewResponse {
 		ReviewResponse response = new ReviewResponse();
 		response.setId(review.getId());
 		response.setBookingId(review.getBooking().getId());
-		response.setBookingId(review.getService().getId());
+		response.setServiceId(review.getService().getId());
 		response.setServiceTitle(review.getService().getTitle());
 		response.setCustomerId(review.getCustomer().getId());
 		response.setCustomerName(review.getCustomer().getName());
