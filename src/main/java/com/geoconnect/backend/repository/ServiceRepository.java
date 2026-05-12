@@ -16,6 +16,7 @@ import com.geoconnect.backend.entity.User;
 @Repository
 public interface ServiceRepository extends JpaRepository<Service, Long> {
 
+	// ── List queries (no pagination) ──────────────────────────
 	List<Service> findByProvider(User provider);
 
 	List<Service> findByAvailableTrue();
@@ -26,23 +27,35 @@ public interface ServiceRepository extends JpaRepository<Service, Long> {
 
 	List<Service> findByCityAndCategoryAndAvailableTrue(String city, ServiceCategory category);
 
+	// ── Basic paginated ───────────────────────────────────────
 	Page<Service> findByAvailableTrue(Pageable pageable);
 
 	Page<Service> findByCategoryAndAvailableTrue(ServiceCategory category, Pageable pageable);
 
 	Page<Service> findByCityAndAvailableTrue(String city, Pageable pageable);
 
-	// Search by title or description
+	// ── Price range ───────────────────────────────────────────
+	Page<Service> findByAvailableTrueAndPriceBetween(Double minPrice, Double maxPrice, Pageable pageable);
+
+	// ── Category + price range ────────────────────────────────
+	Page<Service> findByCategoryAndAvailableTrueAndPriceBetween(ServiceCategory category, Double minPrice,
+			Double maxPrice, Pageable pageable);
+
+	// ── City + price range ────────────────────────────────────
+	Page<Service> findByCityIgnoreCaseAndAvailableTrueAndPriceBetween(String city, Double minPrice, Double maxPrice,
+			Pageable pageable);
+
+	// ── City + category + price range ─────────────────────────
+	Page<Service> findByAvailableTrueAndCityIgnoreCaseAndCategoryAndPriceBetween(String city, ServiceCategory category,
+			Double minPrice, Double maxPrice, Pageable pageable);
+
+	// ── City + category (no price) ────────────────────────────
+	Page<Service> findByCityIgnoreCaseAndCategoryAndAvailableTrue(String city, ServiceCategory category,
+			Pageable pageable);
+
+	// ── Keyword search ────────────────────────────────────────
 	@Query("SELECT s FROM Service s WHERE s.available = true AND "
 			+ "(LOWER(s.title) LIKE LOWER(CONCAT('%', :keyword, '%')) OR "
 			+ "LOWER(s.description) LIKE LOWER(CONCAT('%', :keyword, '%')))")
 	Page<Service> searchByKeyword(@Param("keyword") String keyword, Pageable pageable);
-
-	// Advanced search with filters
-	@Query("SELECT s FROM Service s WHERE s.available = true AND "
-			+ "(:city IS NULL OR LOWER(s.city) = LOWER(:city)) AND "
-			+ "(:category IS NULL OR s.category = :category) AND " + "(:minPrice IS NULL OR s.price >= :minPrice) AND "
-			+ "(:maxPrice IS NULL OR s.price <= :maxPrice)")
-	Page<Service> searchWithFilters(@Param("city") String city, @Param("category") ServiceCategory category,
-			@Param("minPrice") Double minPrice, @Param("maxPrice") Double maxPrice, Pageable pageable);
 }
