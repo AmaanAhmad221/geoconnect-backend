@@ -40,7 +40,7 @@ public class SecurityConfig {
 						.requestMatchers("/api/auth/**").permitAll().requestMatchers("/api/health").permitAll()
 						.requestMatchers("/ws/**").permitAll().requestMatchers("/swagger-ui/**").permitAll()
 						.requestMatchers("/api-docs/**").permitAll().requestMatchers("/v3/api-docs/**").permitAll()
-						.requestMatchers("/uploads/**").permitAll()
+						.requestMatchers("/uploads/**").permitAll().requestMatchers("/favicon.ico").permitAll()
 
 						// ✅ Public read-only APIs (no login needed)
 						.requestMatchers(HttpMethod.GET, "/api/services/**").permitAll()
